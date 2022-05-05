@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>weatherdata</title>
+        <style>
+            #head{
+                width:100%;
+                height:70px;
+                text-align: center;
+                padding-top: 30px;
+            }
+            /* for design input box of the city name */
+            input{
+                width:30%;
+                height:40%;
+                border: 1px solid gray;
+                background: transparent;
+                border-radius: 5px;
+                color: white;
+                font-size: 20px;
+                text-align: center;
+            }
+            button{
+                padding: 0.5% 2%;
+                background-color: rgba(2, 2, 65, 0.322);
+                color:white;
+                border: none
+            }
+            #middle{
+                display: flex;
+                width:80%;
+                height:400px;
+                margin: auto;
+            }
+            /* design for the div of data display */
+            #left{
+                width:50%;
+                height:100%;
+                display:grid;
+                grid-template-columns: repeat(2, 35%);
+                grid-template-rows: repeat(3, 25%);
+                justify-content: space-evenly;
+                align-content: space-around;
+            }
+            #left>div{
+                border: 1px solid white;
+                text-align: center;
+                color: rgb(221, 219, 219);
+                background-color: rgba(54, 54, 54, 0.274); 
+                border-radius: 10px;
+            }
+            #right{
+                width:50%;
+                height:100%;
+            }
+            #forecast{
+                width:100%;
+                height:200px;
+            }
+            /* these is style for map */
+            .mapouter{
+                position:relative;
+                text-align:right;
+                height:100%;
+                width:100%;
+            }
+             .gmap_canvas {
+                overflow:hidden;
+                background:none!important;
+                height:100%;
+                width:100%;
+            }
+            .d{
+                font-size: 30px;
+                line-height: 0px;
+                font-family: 'lato', sans-serif;
+                font-weight: bolder;
+            }
+            .tile{
+                font-size: 15px;
+            }
+            #forecast{
+                text-align: center;
+                justify-content: center;
+                font-size: 20px;
+            }
+        </style>
+    </head>
+    <body background="img/weatherback.jpg">
+        <!-- these is head div -->
+        <div id="head">
+            <input type="text" id="city" placeholder="Enter your city"/>
+            <button onclick="getWeather()">Search</button>
+        </div>
+        <!-- these is middle part of app -->
+        <div id= "middle">
+            <!-- these is middle left div for wheather info -->
+            <div id="left">
+                <!-- these div for append the data from script -->
+                <div id="temp">Temperature</div>
+                <div id="humidity">Humidity</div>
+                <div id="pressure">Pressure</div>
+                <div id="speed">Air speed</div>
+                <div id="visibility">Visibility</div>
+                <div id="maxmin">Max / Min</div>
+            </div>
+            <!-- these div is for show city map -->
+            <div id="right">
+                <div class="mapouter">
+                    <div class="gmap_canvas">
+                               
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- these is lower div for show forecast data -->
+        <div id="forecast"> Forecast feature coming soon.....</div>
+       
+    </body>
+</html>
+<script>
+    let dis= document.getElementById("left");
+    let datadiv= document.getElementById("datadiv");
+    let mapdiv= document.querySelector(".gmap_canvas");
+    // these functoin for getting curerent day wether data
+
+    async function getWeather()
+    {
+        try{
+            let city= document.getElementById("city").value;
+            showmap(city);
+        let response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=49988ce2d6ee669aa10d49a1f9e77e78&units=metric`
+            );
+    
+        let data= await response.json();
+        showweather(data);
+        console.log("data", data);
+        }
+        catch(err){
+            console.log("city not found", err);
+        }
+
+    }
+
+    // function for display map of perticular city
+    function showmap(city)
+    {
+        mapdiv.innerHTML="";
+        let iframe= document.createElement("iframe");
+        iframe.width= "100%";
+        iframe.height= "100%";
+        iframe.src= `https://maps.google.com/maps?q=${city}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+        iframe.frameBorder= "0";
+        iframe.scrolling= "no";
+        iframe.marginHeight= "0";
+        iframe.marginWidth="0";
+
+        mapdiv.append(iframe);
+    }
+
+    let dtemp= document.getElementById("temp");
+    let dhum= document.getElementById("humidity");
+    let dpress= document.getElementById("pressure");
+    let dspeed= document.getElementById("speed");
+    let dvisib= document.getElementById("visibility");
+    let dmaxmin= document.getElementById("maxmin");
+    // function for append the fetched data to the website
+    function showweather(data)
+    {
+        dtemp.innerHTML="";
+        dhum.innerHTML="";
+        dpress.innerHTML="";
+        dspeed.innerHTML="";
+        dvisib.innerHTML="";
+        dmaxmin.innerHTML="";
+        
+        let t= document.createElement("p");
+        t.className="tile";
+        t.textContent="Temperature";
+        
+        let temp= document.createElement("p");
+        temp.className="d";
+        temp.textContent= `${data.main.temp} C`;
+        dtemp.append(t,temp);
+
+        let p= document.createElement("p");
+        p.className="tile";
+        p.textContent="Perssure";
+
+        let press= document.createElement("p");
+        press.className="d";
+        press.textContent= `${data.main.pressure}hPa`;
+        dpress.append(p, press);
+
+        let h= document.createElement("p");
+        h.className="tile";
+        h.textContent="Humidity";
+
+        let humidity= document.createElement("p");
+        humidity.className="d";
+        humidity.textContent= `${data.main.humidity}%`;
+        dhum.append(h, humidity);
+
+        let s= document.createElement("p");
+        s.className="tile";
+        s.textContent="Speed";
+
+        let speed= document.createElement("p");
+        speed.className="d";
+        speed.textContent= `${data.wind.speed}km/h`;
+        dspeed.append(s, speed);
+
+        let v= document.createElement("p");
+        v.className="tile";
+        v.textContent="Visibility";
+
+        let visib= document.createElement("p");
+        visib.className="d";
+        visib.textContent=`${data.visibility}mtr`;
+        dvisib.append(v, visib);
+
+        let m= document.createElement("p");
+        m.className="tile";
+        m.textContent="Max/ Min";
+
+        let maxmin= document.createElement("p");
+        maxmin.className="d";
+        maxmin.textContent= `${data.main.temp_max}c/${data.main.temp_min}c`;
+        dmaxmin.append(m, maxmin); 
+        
+
+    }
+</script>
